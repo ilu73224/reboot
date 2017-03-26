@@ -1,6 +1,7 @@
 package com.stc.reboot;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -14,17 +15,23 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        tryReboot();
+        new mainTask().execute();
         finish();
     }
-
+    private class mainTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            tryReboot();
+            return null;
+        }
+    }
     public void tryReboot() {
         try {
             Process pReboot = Runtime.getRuntime().exec("su");
             DataOutputStream opt = new DataOutputStream(pReboot.getOutputStream());
             opt.writeBytes("sendevent /dev/input/event2 1 116 1\n");
             opt.writeBytes("sendevent /dev/input/event2 0 0 0\n");
-            opt.writeBytes("sleep 3\n");
+            opt.writeBytes("sleep 1\n");
             opt.writeBytes("sendevent /dev/input/event2 1 116 0\n");
             opt.writeBytes("sendevent /dev/input/event2 0 0 0\n");
             opt.writeBytes("exit\n");
